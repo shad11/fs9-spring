@@ -1,0 +1,54 @@
+[
+    {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "age": 30,
+        "accounts": [
+            {
+                "id": 101,
+                "number": "ACC12345678",
+                "currency": "USD",
+                "balance": 0.0,
+                "customer": {
+                    "id": 1,
+                    "name": "John Doe",
+                    "email": "john.doe@example.com",
+                    "age": 30
+                }
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "age": 25,
+        "accounts": [
+            {
+                "id": 102,
+                "number": "ACC98765432",
+                "currency": "EUR",
+                "balance": 0.0,
+                "customer": {
+                    "id": 2,
+                    "name": "Jane Smith",
+                    "email": "jane.smith@example.com",
+                    "age": 25
+                }
+            },
+            {
+                "id": 103,
+                "number": "ACC12378945",
+                "currency": "GBP",
+                "balance": 0.0,
+                "customer": {
+                    "id": 2,
+                    "name": "Jane Smith",
+                    "email": "jane.smith@example.com",
+                    "age": 25
+                }
+            }
+        ]
+    }
+]
