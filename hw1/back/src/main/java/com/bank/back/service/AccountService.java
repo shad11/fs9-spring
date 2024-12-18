@@ -14,19 +14,23 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    public Account saveAccount(Account account) {
+    public Account save(Account account) {
         return accountRepository.save(account);
     }
 
-    public List<Account> getAllAccounts() {
+    public List<Account> getAll() {
         return accountRepository.findAll();
     }
 
-    public Account getAccountById(Long id) {
+    public Account getById(Long id) {
         return accountRepository.findById(id).orElseThrow(() -> new Error("Account not found"));
     }
 
-    public void deleteAccount(Long id) {
+    public Account getByNumber(String number) {
+        return accountRepository.findByNumber(number);
+    }
+
+    public void delete(Long id) {
         accountRepository.deleteById(id);
     }
 }

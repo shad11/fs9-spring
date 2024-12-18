@@ -1,30 +1,30 @@
 package com.bank.back.dto;
 
 public class AccountTransferDTO {
-    private Long fromAccountId;
-    private Long toAccountId;
+    private String fromNumber;
+    private String toNumber;
     private double amount;
 
-    public AccountTransferDTO(Long fromAccountId, Long toAccountId, double amount) {
-        this.fromAccountId = fromAccountId;
-        this.toAccountId = toAccountId;
+    public AccountTransferDTO(String fromNumber, String toNumber, double amount) {
+        this.fromNumber = fromNumber;
+        this.toNumber = toNumber;
         this.amount = amount;
     }
 
-    public Long getFromAccountId() {
-        return fromAccountId;
+    public String getFromNumber() {
+        return fromNumber;
     }
 
-    public void setFromAccount(Long fromAccountId) {
-        this.fromAccountId = fromAccountId;
+    public void setFromNumber(String fromNumber) {
+        this.fromNumber = fromNumber;
     }
 
-    public Long getToAccountId() {
-        return toAccountId;
+    public String getToNumber() {
+        return toNumber;
     }
 
-    public void setToAccount(Long toAccountId) {
-        this.toAccountId = toAccountId;
+    public void setToNumber(String toNumber) {
+        this.toNumber = toNumber;
     }
 
     public double getAmount() {
