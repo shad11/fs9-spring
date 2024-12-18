@@ -2,8 +2,8 @@ package com.bank.back.controller;
 
 import com.bank.back.dto.AccountTransferDTO;
 import com.bank.back.model.Account;
-import com.bank.back.entity.MessageResponse;
-import com.bank.back.service.AccountService;
+import com.bank.back.entities.MessageResponse;
+import com.bank.back.serviceH2.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +17,8 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @PatchMapping("/deposit")
-    public ResponseEntity<Account> increaseAccount(@RequestParam("number") String number, @RequestParam("amount") double amount) {
+    @PatchMapping("/{number}/deposit")
+    public ResponseEntity<Account> increaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
         Account account = accountService.getByNumber(number);
 
         account.setBalance(account.getBalance() + amount);
@@ -26,8 +26,8 @@ public class AccountController {
         return ResponseEntity.ok(accountService.save(account));
     }
 
-    @PatchMapping("/withdraw")
-    public ResponseEntity<Object> decreaseAccount(@RequestParam("number") String number, @RequestParam("amount") double amount) {
+    @PatchMapping("/{number}/withdraw")
+    public ResponseEntity<Object> decreaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
         Account account = accountService.getByNumber(number);
 
         if (account.getBalance() < amount) {

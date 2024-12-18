@@ -4,8 +4,8 @@ import com.bank.back.dto.AccountDTO;
 import com.bank.back.dto.CustomerDTO;
 import com.bank.back.model.Account;
 import com.bank.back.model.Customer;
-import com.bank.back.service.AccountService;
-import com.bank.back.service.CustomerService;
+import com.bank.back.serviceH2.AccountService;
+import com.bank.back.serviceH2.CustomerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

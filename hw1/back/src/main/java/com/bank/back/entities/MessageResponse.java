@@ -1,4 +1,4 @@
-package com.bank.back.entity;
+package com.bank.back.entities;
 
 public class MessageResponse {
     private String message;
