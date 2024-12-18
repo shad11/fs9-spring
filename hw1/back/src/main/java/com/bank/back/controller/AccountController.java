@@ -18,7 +18,7 @@ public class AccountController {
     }
 
     @PatchMapping("/deposit")
-    public ResponseEntity<Account> increaseAccount(@RequestParam("number") String number, @RequestParam("amount") int amount) {
+    public ResponseEntity<Account> increaseAccount(@RequestParam("number") String number, @RequestParam("amount") double amount) {
         Account account = accountService.getByNumber(number);
 
         account.setBalance(account.getBalance() + amount);
@@ -27,7 +27,7 @@ public class AccountController {
     }
 
     @PatchMapping("/withdraw")
-    public ResponseEntity<Object> decreaseAccount(@RequestParam("number") String number, @RequestParam("amount") int amount) {
+    public ResponseEntity<Object> decreaseAccount(@RequestParam("number") String number, @RequestParam("amount") double amount) {
         Account account = accountService.getByNumber(number);
 
         if (account.getBalance() < amount) {
