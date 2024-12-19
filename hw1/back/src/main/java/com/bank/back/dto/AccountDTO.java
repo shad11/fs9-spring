@@ -3,15 +3,15 @@ package com.bank.back.dto;
 import com.bank.back.enums.Currency;
 
 public class AccountDTO {
-    private Long id;
+    private long id;
     private String number;
     private Currency currency;
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

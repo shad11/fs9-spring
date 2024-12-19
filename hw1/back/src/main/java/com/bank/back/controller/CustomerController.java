@@ -2,10 +2,11 @@ package com.bank.back.controller;
 
 import com.bank.back.dto.AccountDTO;
 import com.bank.back.dto.CustomerDTO;
+import com.bank.back.entities.MessageResponse;
 import com.bank.back.model.Account;
 import com.bank.back.model.Customer;
-import com.bank.back.serviceH2.AccountService;
-import com.bank.back.serviceH2.CustomerService;
+import com.bank.back.service.AccountService;
+import com.bank.back.service.CustomerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,21 +40,29 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getById(@PathVariable Long id) {
+    public ResponseEntity<Customer> getById(@PathVariable long id) {
         Customer customer = customerService.getById(id);
 
         return ResponseEntity.ok(customer);
     }
 
     @PostMapping
-    public ResponseEntity<Customer> create(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<Object> create(@RequestBody CustomerDTO customerDTO) {
+        if (customerDTO.getName() == null || customerDTO.getEmail() == null || customerDTO.getAge() == 0) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Customer name, email and age are mandatory"));
+        }
+
+        if (customerService.getByEmail(customerDTO.getEmail()) != null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Email already exists"));
+        }
+
         Customer customer = new Customer(customerDTO.getName(), customerDTO.getEmail(), customerDTO.getAge());
 
         return ResponseEntity.status(201).body(customerService.save(customer));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> update(@PathVariable Long id, @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<Customer> update(@PathVariable long id, @RequestBody CustomerDTO customerDTO) {
         Customer customer = customerService.getById(id);
 
         if (customerDTO.getName() != null) {
@@ -72,26 +81,31 @@ public class CustomerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Object> delete(@PathVariable long id) {
         customerService.delete(id);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MessageResponse("Customer deleted"));
     }
 
     @PostMapping("/{id}/accounts")
-    public ResponseEntity<Customer> addAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO) {
+    public ResponseEntity<Object> addAccount(@PathVariable long id, @RequestBody AccountDTO accountDTO) {
+        if (accountDTO.getCurrency() == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Currency is mandatory"));
+        }
+
         Customer customer = customerService.getById(id);
         Account account = new Account(accountDTO.getCurrency(), customer);
 
         accountService.save(account);
 
-        return ResponseEntity.ok(customerService.getById(id));
+        return ResponseEntity.ok(customerService.addAccount(id, account));
     }
 
     @DeleteMapping("/{id}/accounts/{accountId}")
-    public ResponseEntity<Void> deleteAccount(@PathVariable Long id, @PathVariable Long accountId) {
+    public ResponseEntity<Object> deleteAccount(@PathVariable long id, @PathVariable long accountId) {
+        customerService.deleteAccount(id, accountId);
         accountService.delete(accountId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MessageResponse("Account deleted"));
     }
 }

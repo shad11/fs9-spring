@@ -1,11 +1,13 @@
 package com.bank.back.dao;
 
 import com.bank.back.model.Account;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class AccountDAO implements DAO<Account> {
     private static DAO<Account> accountDAO = null;
     private final Map<Long, Account> accounts = new HashMap<>();
@@ -22,6 +24,7 @@ public class AccountDAO implements DAO<Account> {
 
     @Override
     public Account save(Account obj) {
+        System.out.println("id" + obj.getId() + ": " + obj);
         accounts.put(obj.getId(), obj);
 
         return obj;

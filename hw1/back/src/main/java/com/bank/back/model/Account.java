@@ -1,44 +1,33 @@
 package com.bank.back.model;
 
 import com.bank.back.enums.Currency;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import org.hibernate.annotations.UuidGenerator;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
-@Entity
-@Table(name = "accounts")
+import java.util.Objects;
+import java.util.UUID;
+
 public class Account {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id = IdGenerator.generateAccountId();
 
-    @UuidGenerator
-    private String number;
+    private String number = UUID.randomUUID().toString();
 
-    @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @Column(columnDefinition = "double default 0")
     private double balance;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Customer customer;
-
-    public Account() {
-    }
 
     public Account(Currency currency, Customer customer) {
         this.currency = currency;
         this.customer = customer;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -72,5 +61,36 @@ public class Account {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+
+        if (!(obj instanceof Account account))
+            return false;
+
+        return account.getBalance() == balance &&
+                account.getId() == id &&
+                account.getNumber().equals(number) &&
+                account.getCurrency().equals(currency) &&
+                account.getCustomer().equals(customer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, number, currency, balance, customer);
+    }
+
+    @Override
+    public String toString() {
+        return "Account { " +
+                "number: '" + number + '\'' +
+                ", currency: " + currency.name() +
+                ", balance: " + balance +
+                ", customer name: " + customer.getName() +
+                ", customer email: " + customer.getEmail() +
+                " }";
     }
 }

@@ -1,11 +1,14 @@
 package com.bank.back.dao;
 
+import com.bank.back.exception.CustomerException;
 import com.bank.back.model.Customer;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class CustomerDAO implements DAO<Customer> {
     private static DAO<Customer> customerDAO = null;
     private final Map<Long, Customer> customers = new HashMap<>();
@@ -54,6 +57,20 @@ public class CustomerDAO implements DAO<Customer> {
 
     @Override
     public Customer getOne(long id) {
-        return customers.get(id);
+        Customer customer = customers.get(id);
+
+        if (customer == null) {
+            throw new CustomerException("Customer not found");
+        }
+
+        return customer;
+    }
+
+    public Customer findByEmail(String email) {
+        return customers.values()
+                .stream()
+                .filter(customer -> customer.getEmail().equals(email))
+                .findFirst()
+                .orElse(null);
     }
 }

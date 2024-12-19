@@ -1,36 +1,22 @@
 package com.bank.back.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Entity
-@Table(name = "customers")
 public class Customer {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id = IdGenerator.generateCustomerId();
 
-    @NotBlank(message = "Customer name is mandatory")
     private String name;
 
-    @NotBlank(message = "Customer email is mandatory")
-    @Email(message = "Email should be valid")
-    @Column(unique = true)
     private String email;
 
-    @Min(value = 18, message = "Customer should be at least 18 years old")
     private int age;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
+    @JsonManagedReference
     private List<Account> accounts = new ArrayList<>();
-
-    public Customer() {
-    }
 
     public Customer(String name, String email, int age) {
         this.name = name;
@@ -38,27 +24,27 @@ public class Customer {
         this.age = age;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public @NotBlank(message = "Customer name is mandatory") String getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(@NotBlank(message = "Customer name is mandatory") String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public @NotBlank(message = "Customer email is mandatory") String getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(@NotBlank(message = "Customer email is mandatory") String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -76,5 +62,34 @@ public class Customer {
 
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+
+        if (!(obj instanceof Customer customer))
+            return false;
+
+        return age == customer.getAge() &&
+                customer.getId() == id &&
+                customer.getName().equals(name) &&
+                customer.getEmail().equals(email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email, age);
+    }
+
+    @Override
+    public String toString() {
+        return "Customer { " +
+                "name: '" + name + '\'' +
+                ", email: '" + email + '\'' +
+                ", age: " + age +
+                ", accounts: " + accounts +
+                " }";
     }
 }
