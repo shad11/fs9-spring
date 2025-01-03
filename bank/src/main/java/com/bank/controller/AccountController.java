@@ -1,10 +1,8 @@
 package com.bank.controller;
 
 import com.bank.dto.AccountTransferDTO;
-import com.bank.model.Account;
 import com.bank.entities.MessageResponse;
 import com.bank.service.AccountService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,41 +16,35 @@ public class AccountController {
     }
 
     @PatchMapping("/{number}/deposit")
-    public ResponseEntity<Account> increaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
-        Account account = accountService.getByNumber(number);
+    public ResponseEntity<Object> increaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
+        if (amount <= 0) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Amount should be greater than 0"));
+        }
 
-        account.setBalance(account.getBalance() + amount);
-
-        return ResponseEntity.ok(accountService.save(account));
+        return ResponseEntity.ok(accountService.deposit(number, amount));
     }
 
     @PatchMapping("/{number}/withdraw")
     public ResponseEntity<Object> decreaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
-        Account account = accountService.getByNumber(number);
-
-        if (account.getBalance() < amount) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new MessageResponse("Not enough money"));
+        if (amount <= 0) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Amount should be greater than 0"));
         }
 
-        account.setBalance(account.getBalance() - amount);
-
-        return ResponseEntity.ok(accountService.save(account));
+        return ResponseEntity.ok(accountService.withdraw(number, amount));
     }
 
     @PatchMapping("/transfer")
     public ResponseEntity<MessageResponse> transfer(@RequestBody AccountTransferDTO accountTransferDTO) {
-        Account accountFrom = accountService.getByNumber(accountTransferDTO.getFromNumber());
-        Account accountTo = accountService.getByNumber(accountTransferDTO.getToNumber());
+        String fromNumber = accountTransferDTO.getFromNumber();
+        String toNumber = accountTransferDTO.getToNumber();
+        double amount = accountTransferDTO.getAmount();
 
-        if (accountFrom.getBalance() < accountTransferDTO.getAmount()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new MessageResponse("Not enough money"));
+        if (amount <= 0) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Amount should be greater than 0"));
         }
 
-        accountFrom.setBalance(accountFrom.getBalance() - accountTransferDTO.getAmount());
-        accountTo.setBalance(accountTo.getBalance() + accountTransferDTO.getAmount());
-
-        accountService.save(accountFrom);
-        accountService.save(accountTo);
+        accountService.withdraw(fromNumber, amount);
+        accountService.deposit(toNumber, amount);
 
         return ResponseEntity.ok(new MessageResponse("Transfer successful"));
     }

@@ -40,4 +40,24 @@ public class AccountService {
     public void delete(long id) {
         accountRepository.deleteById(id);
     }
+
+    public Account deposit(String accountNumber, double amount) {
+        Account account = getByNumber(accountNumber);
+
+        account.setBalance(account.getBalance() + amount);
+
+        return accountRepository.save(account);
+    }
+
+    public Account withdraw(String accountNumber, double amount) {
+        Account account = getByNumber(accountNumber);
+
+        if (account.getBalance() < amount) {
+            throw new CustomerException("Not enough money");
+        }
+
+        account.setBalance(account.getBalance() - amount);
+
+        return accountRepository.save(account);
+    }
 }
