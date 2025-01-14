@@ -1,4 +1,4 @@
-package com.bank.entities;
+package com.bank.dto;
 
 public class MessageResponse {
     private String message;

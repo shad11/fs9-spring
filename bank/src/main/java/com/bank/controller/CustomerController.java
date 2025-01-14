@@ -2,9 +2,9 @@ package com.bank.controller;
 
 import com.bank.dto.AccountDTO;
 import com.bank.dto.CustomerDTO;
-import com.bank.entities.MessageResponse;
-import com.bank.model.Account;
-import com.bank.model.Customer;
+import com.bank.dto.MessageResponse;
+import com.bank.entity.Account;
+import com.bank.entity.Customer;
 import com.bank.service.AccountService;
 import com.bank.service.CustomerService;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.bank.controller;
 
-import com.bank.entities.MessageResponse;
+import com.bank.dto.MessageResponse;
 import com.bank.exception.CustomerException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

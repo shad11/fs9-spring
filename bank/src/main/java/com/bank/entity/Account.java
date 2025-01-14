@@ -1,4 +1,4 @@
-package com.bank.model;
+package com.bank.entity;
 
 import com.bank.enums.Currency;
 import com.fasterxml.jackson.annotation.JsonIgnore;

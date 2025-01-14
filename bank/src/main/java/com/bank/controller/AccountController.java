@@ -1,7 +1,7 @@
 package com.bank.controller;
 
 import com.bank.dto.AccountTransferDTO;
-import com.bank.entities.MessageResponse;
+import com.bank.dto.MessageResponse;
 import com.bank.service.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

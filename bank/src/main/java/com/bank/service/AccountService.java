@@ -1,7 +1,7 @@
 package com.bank.service;
 
 import com.bank.exception.CustomerException;
-import com.bank.model.Account;
+import com.bank.entity.Account;
 import com.bank.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 

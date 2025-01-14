@@ -1,8 +1,8 @@
 package com.bank.service;
 
 import com.bank.exception.CustomerException;
-import com.bank.model.Customer;
-import com.bank.model.Employer;
+import com.bank.entity.Customer;
+import com.bank.entity.Employer;
 import com.bank.repository.CustomerRepository;
 import com.bank.repository.EmployerRepository;
 import org.springframework.stereotype.Service;
