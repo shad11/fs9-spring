@@ -1,4 +1,4 @@
-package com.bank.controller;
+package com.bank.config;
 
 import com.bank.dto.MessageResponse;
 import com.bank.exception.CustomerException;

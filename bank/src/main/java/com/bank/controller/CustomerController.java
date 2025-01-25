@@ -1,83 +1,57 @@
 package com.bank.controller;
 
-import com.bank.dto.AccountDTO;
-import com.bank.dto.CustomerDTO;
-import com.bank.dto.MessageResponse;
-import com.bank.entity.Account;
-import com.bank.entity.Customer;
+import com.bank.dto.*;
 import com.bank.service.AccountService;
 import com.bank.service.CustomerService;
+import com.bank.validation.FullUpdate;
+import com.bank.validation.PartialUpdate;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/customers")
+@RequiredArgsConstructor
+@Validated
 public class CustomerController {
     private final CustomerService customerService;
     private final AccountService accountService;
 
-    public CustomerController(CustomerService customerService, AccountService accountService) {
-        this.customerService = customerService;
-        this.accountService = accountService;
-    }
-
     @GetMapping
-    public ResponseEntity<List<CustomerDTO>> getAll() {
-        List<CustomerDTO> customers =  customerService.getAll().stream().map(customer -> {
-            CustomerDTO customerDTO = new CustomerDTO();
+    public ResponseEntity<Page<CustomerResponse>> getAll(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-            customerDTO.setId(customer.getId());
-            customerDTO.setName(customer.getName());
-            customerDTO.setEmail(customer.getEmail());
-            customerDTO.setAge(customer.getAge());
-
-            return customerDTO;
-        }).toList();
-
-        return ResponseEntity.ok(customers);
+        return ResponseEntity.ok(customerService.getAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getById(@PathVariable long id) {
-        Customer customer = customerService.getById(id);
-
-        return ResponseEntity.ok(customer);
+    public ResponseEntity<CustomerResponse> getById(@PathVariable long id) {
+        return ResponseEntity.ok(customerService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody CustomerDTO customerDTO) {
-        if (customerDTO.getName() == null || customerDTO.getEmail() == null || customerDTO.getAge() == 0) {
+    public ResponseEntity<Object> create(@RequestBody @Validated(FullUpdate.class) CustomerRequest customerRequest) {
+        if (customerRequest.getName() == null || customerRequest.getEmail() == null || customerRequest.getAge() == 0) {
             return ResponseEntity.badRequest().body(new MessageResponse("Customer name, email and age are mandatory"));
         }
 
-        if (customerService.getByEmail(customerDTO.getEmail()) != null) {
+        if (customerService.getByEmail(customerRequest.getEmail()) != null) {
             return ResponseEntity.badRequest().body(new MessageResponse("Email already exists"));
         }
 
-        Customer customer = new Customer(customerDTO.getName(), customerDTO.getEmail(), customerDTO.getAge());
-
-        return ResponseEntity.status(201).body(customerService.save(customer));
+        return ResponseEntity.status(201).body(customerService.save(customerRequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> update(@PathVariable long id, @RequestBody CustomerDTO customerDTO) {
-        Customer customer = customerService.getById(id);
-
-        if (customerDTO.getName() != null) {
-            customer.setName(customerDTO.getName());
-        }
-
-        if (customerDTO.getEmail() != null) {
-            customer.setEmail(customerDTO.getEmail());
-        }
-
-        if (customerDTO.getAge() != 0) {
-            customer.setAge(customerDTO.getAge());
-        }
-
-        return ResponseEntity.ok(customerService.save(customer));
+    public ResponseEntity<CustomerResponse> update(@PathVariable long id, @RequestBody @Validated(PartialUpdate.class) CustomerRequest customerRequest) {
+        return ResponseEntity.ok(customerService.update(id, customerRequest));
     }
 
     @DeleteMapping("/{id}")
@@ -88,15 +62,12 @@ public class CustomerController {
     }
 
     @PostMapping("/{id}/accounts")
-    public ResponseEntity<Object> addAccount(@PathVariable long id, @RequestBody AccountDTO accountDTO) {
-        if (accountDTO.getCurrency() == null) {
+    public ResponseEntity<Object> addAccount(@PathVariable("id") long customerId, @RequestBody AccountRequest accountRequest) {
+        if (accountRequest.getCurrency() == null) {
             return ResponseEntity.badRequest().body(new MessageResponse("Currency is mandatory"));
         }
 
-        Customer customer = customerService.getById(id);
-        Account account = new Account(accountDTO.getCurrency(), customer);
-
-        return ResponseEntity.ok(accountService.save(account));
+        return ResponseEntity.ok(accountService.addAccount(customerId, accountRequest));
     }
 
     @DeleteMapping("/{id}/accounts/{accountId}")

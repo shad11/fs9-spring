@@ -1,8 +1,12 @@
 CREATE TABLE customers (
   id bigint NOT NULL AUTO_INCREMENT,
   email varchar(100) NOT NULL,
+  password varchar(100) NOT NULL,
   name varchar(100) NOT NULL,
   age tinyint DEFAULT(18),
+  phone varchar(20) DEFAULT NULL,
+  created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_modified_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE (email)
 );
@@ -13,6 +17,8 @@ CREATE TABLE accounts (
   currency enum('CHF','EUR','GBP','UAH','USD') NOT NULL,
   number varchar(45) NOT NULL,
   customer_id bigint NOT NULL,
+  created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_modified_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (customer_id) REFERENCES customers (id)
 );
@@ -21,6 +27,8 @@ CREATE TABLE employers (
   id bigint NOT NULL AUTO_INCREMENT,
   name varchar(100) NOT NULL,
   address varchar(300) NOT NULL,
+  created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_modified_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
 
@@ -30,11 +38,11 @@ CREATE TABLE customer_employer (
 );
 
 -- Insert sample customers
-INSERT INTO customers (email, name, age)
+INSERT INTO customers (email, name, age, password)
 VALUES
-  ('john.doe@example.com', 'John Doe', 35),
-  ('jane.smith@example.com', 'Jane Smith', 28),
-  ('alex.brown@example.com', 'Alex Brown', 42);
+  ('john.doe@example.com', 'John Doe', 35, 'password'),
+  ('jane.smith@example.com', 'Jane Smith', 28, 'password'),
+  ('alex.brown@example.com', 'Alex Brown', 42, 'password');
 
 -- Insert sample accounts
 INSERT INTO accounts (balance, currency, number, customer_id)

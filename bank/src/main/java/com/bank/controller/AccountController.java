@@ -1,19 +1,17 @@
 package com.bank.controller;
 
-import com.bank.dto.AccountTransferDTO;
+import com.bank.dto.AccountRequest;
 import com.bank.dto.MessageResponse;
 import com.bank.service.AccountService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/accounts")
+@RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
-
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
-    }
 
     @PatchMapping("/{number}/deposit")
     public ResponseEntity<Object> increaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
@@ -33,18 +31,16 @@ public class AccountController {
         return ResponseEntity.ok(accountService.withdraw(number, amount));
     }
 
-    @PatchMapping("/transfer")
-    public ResponseEntity<MessageResponse> transfer(@RequestBody AccountTransferDTO accountTransferDTO) {
-        String fromNumber = accountTransferDTO.getFromNumber();
-        String toNumber = accountTransferDTO.getToNumber();
-        double amount = accountTransferDTO.getAmount();
+    @PatchMapping("/{number}/transfer")
+    public ResponseEntity<MessageResponse> transfer(@PathVariable String number, @RequestBody AccountRequest accountRequest) {
+        double amount = accountRequest.getAmount();
 
         if (amount <= 0) {
             return ResponseEntity.badRequest().body(new MessageResponse("Amount should be greater than 0"));
         }
 
-        accountService.withdraw(fromNumber, amount);
-        accountService.deposit(toNumber, amount);
+        accountService.withdraw(number, amount);
+        accountService.deposit(accountRequest.getNumber(), amount);
 
         return ResponseEntity.ok(new MessageResponse("Transfer successful"));
     }

@@ -1,5 +1,8 @@
 package com.bank.service;
 
+import com.bank.dto.EmployerFacade;
+import com.bank.dto.EmployerRequest;
+import com.bank.dto.EmployerResponse;
 import com.bank.exception.CustomerException;
 import com.bank.entity.Employer;
 import com.bank.repository.EmployerRepository;
@@ -10,25 +13,40 @@ import java.util.List;
 @Service
 public class EmployerService {
     private final EmployerRepository employerRepository;
+    private final EmployerFacade employerFacade;
 
-    public EmployerService(EmployerRepository employerRepository) {
+    public EmployerService(EmployerRepository employerRepository, EmployerFacade employerFacade) {
         this.employerRepository = employerRepository;
+        this.employerFacade = employerFacade;
     }
 
-    public Employer save(Employer employer) {
-        return employerRepository.save(employer);
+    public EmployerResponse save(EmployerRequest employer) {
+        Employer savedEmployer = employerRepository.save(employerFacade.toEntity(employer));
+
+        return employerFacade.toResponse(savedEmployer);
     }
 
-    public List<Employer> getAll() {
-        return employerRepository.findAll();
+    public List<EmployerResponse> getAll() {
+        return employerRepository.findAll()
+                .stream()
+                .map(employerFacade::toResponse)
+                .toList();
     }
 
-    public Employer getById(long id) {
-        return employerRepository.findById(id).orElseThrow(() -> new CustomerException("Employer hasn't been found!"));
+    public EmployerResponse getById(long id) {
+        Employer employer = employerRepository.findById(id).orElseThrow(() -> new CustomerException("Employer hasn't been found!"));
+
+        return employerFacade.toResponse(employer);
     }
 
-    public Employer getEmployerByName(String name) {
-        return employerRepository.findByName(name);
+    public EmployerResponse getEmployerByName(String name) {
+        Employer employer = employerRepository.findByName(name);
+
+        if (employer == null) {
+            return null;
+        }
+
+        return employerFacade.toResponse(employer);
     }
 
     public void delete(long id) {

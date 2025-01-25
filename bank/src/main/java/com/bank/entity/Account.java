@@ -3,10 +3,16 @@ package com.bank.entity;
 import com.bank.enums.Currency;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "accounts")
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Account extends AbstractEntity {
     @UuidGenerator
     private String number;
@@ -22,43 +28,8 @@ public class Account extends AbstractEntity {
     @JsonIgnore
     private Customer customer;
 
-    public Account() {
-    }
-
     public Account(Currency currency, Customer customer) {
         this.currency = currency;
-        this.customer = customer;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public Currency getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
         this.customer = customer;
     }
 }

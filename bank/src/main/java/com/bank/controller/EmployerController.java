@@ -1,77 +1,53 @@
 package com.bank.controller;
 
-import com.bank.dto.CustomerDTO;
-import com.bank.dto.EmployerDTO;
-import com.bank.dto.MessageResponse;
-import com.bank.entity.Customer;
-import com.bank.entity.Employer;
+import com.bank.dto.*;
 import com.bank.service.CustomerService;
 import com.bank.service.EmployerService;
+import com.bank.validation.PartialUpdate;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/employers")
+@RequiredArgsConstructor
+@Validated
 public class EmployerController {
     private final EmployerService employerService;
     private final CustomerService customerService;
 
-    public EmployerController(EmployerService employerService, CustomerService customerService) {
-        this.employerService = employerService;
-        this.customerService = customerService;
-    }
-
     @GetMapping
-    public ResponseEntity<List<EmployerDTO>> getAll() {
-        List<EmployerDTO> employers = employerService.getAll().stream().map(employer -> {
-            EmployerDTO employerDTO = new EmployerDTO();
-
-            employerDTO.setId(employer.getId());
-            employerDTO.setName(employer.getName());
-            employerDTO.setAddress(employer.getAddress());
-
-            return employerDTO;
-        }).toList();
-
-        return ResponseEntity.ok(employers);
+    public ResponseEntity<List<EmployerResponse>> getAll() {
+        return ResponseEntity.ok(employerService.getAll());
     }
 
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody EmployerDTO employerDTO) {
-        if (employerDTO.getName() == null || employerDTO.getAddress() == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Employer name and address are mandatory"));
-        }
-
-        if (employerService.getEmployerByName(employerDTO.getName()) != null) {
+    public ResponseEntity<Object> create(@RequestBody @Valid EmployerRequest employerRequest) {
+        if (employerService.getEmployerByName(employerRequest.getName()) != null) {
             return ResponseEntity.badRequest().body(new MessageResponse("Employer already exists"));
         }
 
-        Employer employer = new Employer(employerDTO.getName(), employerDTO.getAddress());
-        System.out.println(employer);
-
-        return ResponseEntity.status(201).body(employerService.save(employer));
+        return ResponseEntity.status(201).body(employerService.save(employerRequest));
     }
 
     @PostMapping("/{id}/add-customer")
-    public ResponseEntity<Object> addCustomer(@PathVariable long id, @RequestBody CustomerDTO customerDTO) {
-        Employer employer = employerService.getById(id);
+    public ResponseEntity<Object> addCustomer(@PathVariable long id, @RequestBody @Validated(PartialUpdate.class) CustomerRequest customerRequest) {
+        EmployerResponse employer = employerService.getById(id);
 
-        if (employer == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Employer not found"));
-        }
-
-        if (customerDTO.getEmail() == null && customerDTO.getId() == 0) {
+        if (customerRequest.getEmail() == null && customerRequest.getId() == 0) {
             return ResponseEntity.badRequest().body(new MessageResponse("Customer email or ID is mandatory"));
         }
 
-        Customer customer = null;
+        CustomerResponse customer = null;
 
-        if (customerDTO.getId() != 0) {
-            customer = customerService.getById(customerDTO.getId());
+        if (customerRequest.getId() != 0) {
+            customer = customerService.getById(customerRequest.getId());
         } else {
-            customer = customerService.getByEmail(customerDTO.getEmail());
+            customer = customerService.getByEmail(customerRequest.getEmail());
         }
 
         if (customer == null) {
