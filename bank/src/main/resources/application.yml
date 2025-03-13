@@ -8,6 +8,10 @@ spring:
   profiles:
     active: local # Or prod based on your environment
 
+logging:
+  level:
+    org.springframework.security: debug
+
 # Configuration for the local profile
 ---
 spring.config.activate.on-profile: local

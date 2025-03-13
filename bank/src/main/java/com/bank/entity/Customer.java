@@ -2,8 +2,8 @@ package com.bank.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -17,6 +17,7 @@ import java.util.Set;
 @Table(name = "customers")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true, exclude = {"accounts", "employers"})
 public class Customer extends AbstractEntity {
     @NotBlank(message = "Customer email is mandatory")
@@ -45,10 +46,4 @@ public class Customer extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "employer_id")
     )
     private Set<Employer> employers = new HashSet<>();
-
-    public Customer(String name, String email, int age) {
-        this.name = name;
-        this.email = email;
-        this.age = age;
-    }
 }

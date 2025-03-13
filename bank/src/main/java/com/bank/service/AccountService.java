@@ -6,6 +6,7 @@ import com.bank.dto.AccountResponse;
 import com.bank.entity.Customer;
 import com.bank.exception.CustomerException;
 import com.bank.entity.Account;
+import com.bank.exception.NotFoundException;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
@@ -31,15 +32,14 @@ public class AccountService {
     }
 
     public AccountResponse getById(long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new Error("Account not found"));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new NotFoundException("Account not found"));
 
         return accountFacade.toResponse(account);
     }
 
     public AccountResponse addAccount(long customerId, AccountRequest accountRequest) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerException("Customer not found"));
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new NotFoundException("Customer not found"));
         Account account = accountFacade.toEntity(accountRequest);
-        // !! Check currency
 
         account.setCustomer(customer);
         Account savedAccount = accountRepository.save(account);
@@ -74,7 +74,7 @@ public class AccountService {
         Account account = accountRepository.findByNumber(number);
 
         if (account == null) {
-            throw new CustomerException("Account not found");
+            throw new NotFoundException("Account not found");
         }
 
         return account;

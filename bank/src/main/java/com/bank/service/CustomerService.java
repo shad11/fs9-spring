@@ -1,31 +1,26 @@
 package com.bank.service;
 
-import com.bank.dto.AccountRequest;
 import com.bank.dto.CustomerFacade;
 import com.bank.dto.CustomerRequest;
 import com.bank.dto.CustomerResponse;
-import com.bank.exception.CustomerException;
 import com.bank.entity.Customer;
 import com.bank.entity.Employer;
+import com.bank.exception.NotFoundException;
 import com.bank.repository.CustomerRepository;
 import com.bank.repository.EmployerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
+@RequiredArgsConstructor
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerFacade customerFacade;
     private final EmployerRepository employerRepository;
-
-    public CustomerService(CustomerRepository customerRepository, CustomerFacade customerFacade, EmployerRepository employerRepository) {
-        this.customerRepository = customerRepository;
-        this.customerFacade = customerFacade;
-        this.employerRepository = employerRepository;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     public Page<CustomerResponse> getAll(Pageable pageable) {
         return customerRepository.findAll(pageable)
@@ -33,7 +28,7 @@ public class CustomerService {
     }
 
     public CustomerResponse getById(long id) {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerException("Customer not found"));
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new NotFoundException("Customer not found"));
 
         return customerFacade.toResponse(customer);
     }
@@ -50,20 +45,22 @@ public class CustomerService {
 
     public CustomerResponse save(CustomerRequest customerRequest) {
         Customer customer = customerFacade.toEntity(customerRequest);
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+
         Customer savedCustomer = customerRepository.save(customer);
 
         return customerFacade.toResponse(savedCustomer);
     }
 
     public CustomerResponse update(long id, CustomerRequest customerRequest) {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerException("Customer not found"));
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new NotFoundException("Customer not found"));
 
         if (customerRequest.getEmail() != null) {
             customer.setEmail(customerRequest.getEmail());
         }
 
         if (customerRequest.getPassword() != null) {
-            customer.setPassword(customerRequest.getPassword());
+            customer.setPassword(passwordEncoder.encode(customerRequest.getPassword()));
         }
 
         if (customerRequest.getName() != null) {
@@ -84,22 +81,13 @@ public class CustomerService {
     }
 
     public void addEmployerToCustomer(long customerId, long employerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerException("Customer not found"));
-        Employer employer = employerRepository.findById(employerId).orElseThrow(() -> new CustomerException("Employer not found"));
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new NotFoundException("Customer not found"));
+        Employer employer = employerRepository.findById(employerId).orElseThrow(() -> new NotFoundException("Employer not found"));
 
         customer.getEmployers().add(employer);
         customerRepository.save(customer);
     }
 
-    //    public Customer update(long id, Customer customer) {
-//        Customer customerToUpdate = getById(id);
-//
-//        customerToUpdate.setName(customer.getName());
-//        customerToUpdate.setEmail(customer.getEmail());
-//        customerToUpdate.setAge(customer.getAge());
-//        customerToUpdate.setAccounts(customer.getAccounts());
-//        return customerRepository.save(customerToUpdate);
-//    }
     public void delete(long id) {
         customerRepository.deleteById(id);
     }
