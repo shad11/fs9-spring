@@ -73,7 +73,16 @@ public class AuthController {
         UserDetails userDetails = registerRequest.getEmail() != null ?
                 userDetailsService.loadUserByEmail(registerRequest.getEmail()) :
                 userDetailsService.loadUserByUsername(registerRequest.getUsername());
-        // TODO: Add a check for the password
+
+        if (!authService.isValidPassword(registerRequest.getPassword(), userDetails.getPassword())) {
+            return ResponseHandler.generateResponse(
+                    HttpStatus.UNAUTHORIZED,
+                    true,
+                    "Invalid password",
+                    null
+            );
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDetails.getUsername(), registerRequest.getPassword())
         );
