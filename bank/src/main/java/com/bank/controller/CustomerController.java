@@ -25,10 +25,10 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<Page<CustomerResponse>> getAll(
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page, size);
 
         return ResponseEntity.ok(customerService.getAll(pageable));
     }
@@ -40,15 +40,14 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody @Validated(FullUpdate.class) CustomerRequest customerRequest) {
-        if (customerRequest.getName() == null || customerRequest.getEmail() == null || customerRequest.getAge() == 0) {
-            return ResponseHandler.generateResponse(
-                    HttpStatus.BAD_REQUEST,
-                    true,
-                    "Customer name, email and age are mandatory",
-                    null
-            );
-        }
-
+//        if (customerRequest.getName() == null || customerRequest.getEmail() == null || customerRequest.getAge() == 0) {
+//            return ResponseHandler.generateResponse(
+//                    HttpStatus.BAD_REQUEST,
+//                    true,
+//                    "Customer name, email and age are mandatory",
+//                    null
+//            );
+//        }
         if (customerService.getByEmail(customerRequest.getEmail()) != null) {
             return ResponseHandler.generateResponse(
                     HttpStatus.BAD_REQUEST,

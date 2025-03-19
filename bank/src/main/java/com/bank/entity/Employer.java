@@ -2,6 +2,7 @@ package com.bank.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Table(name = "employers")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Employer extends AbstractEntity {
     @Column(nullable = false)

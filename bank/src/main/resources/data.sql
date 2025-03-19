@@ -37,6 +37,17 @@ CREATE TABLE customer_employer (
   employer_id bigint DEFAULT NULL
 );
 
+CREATE TABLE users (
+  id bigint NOT NULL AUTO_INCREMENT,
+  email varchar(100) NOT NULL,
+  password varchar(100) NOT NULL,
+  username varchar(100) NOT NULL,
+  created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_modified_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE (email)
+);
+
 -- Insert sample customers
 INSERT INTO customers (email, name, age, password)
 VALUES
