@@ -3,6 +3,7 @@ package com.bank.entity;
 import com.bank.enums.Currency;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import org.hibernate.annotations.UuidGenerator;
 @Table(name = "accounts")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Account extends AbstractEntity {
     @UuidGenerator

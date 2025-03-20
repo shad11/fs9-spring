@@ -172,7 +172,7 @@ public class CustomerServiceTest {
 
     @Test
     void testAddEmployerToCustomer() {
-        Employer employer = new Employer("Tech Corp", "Software Engineer");
+        Employer employer = new Employer("Tech Corp", "Software Engineer", new HashSet<>());
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
         when(employerRepository.findById(1L)).thenReturn(Optional.of(employer));

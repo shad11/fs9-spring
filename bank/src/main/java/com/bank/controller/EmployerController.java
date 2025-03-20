@@ -4,8 +4,8 @@ import com.bank.dto.*;
 import com.bank.service.CustomerService;
 import com.bank.service.EmployerService;
 import com.bank.util.ResponseHandler;
+import com.bank.validation.FullUpdate;
 import com.bank.validation.PartialUpdate;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class EmployerController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody @Valid EmployerRequest employerRequest) {
+    public ResponseEntity<Object> create(@RequestBody @Validated(FullUpdate.class) EmployerRequest employerRequest) {
         if (employerService.getEmployerByName(employerRequest.getName()) != null) {
             return ResponseHandler.generateResponse(
                     HttpStatus.BAD_REQUEST,
