@@ -11,6 +11,7 @@ import com.bank.dto.CustomerResponse;
 import com.bank.enums.Currency;
 import com.bank.service.AccountService;
 import com.bank.service.CustomerService;
+import com.bank.util.RestPageImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,21 +67,21 @@ public class CustomerControllerTest {
         accountResponse = new AccountResponse(1, "1234567890", Currency.USD, 0);
     }
 
-//    @Test
-//    void testGetAll() throws Exception {
-//        Pageable pageable = PageRequest.of(0, 10);
-//        Page<CustomerResponse> pageResponse = new PageImpl<>(new ArrayList<>(List.of(customerResponse)));
-//
-//        when(customerService.getAll(pageable)).thenReturn(pageResponse);
-//
-//        mockMvc.perform(get("/customers?page=0&size=10"))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.content[0].email").value(email))
-//                .andExpect(jsonPath("$.content[0].name").value(name));
-//
-//        verify(customerService, times(1)).getAll(pageable);
-//    }
+    @Test
+    void testGetAll() throws Exception {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<CustomerResponse> customers = List.of(customerResponse);
+        RestPageImpl<CustomerResponse> pageResponse = new RestPageImpl<>(customers, 0, 10, (long) customers.size());
+
+        when(customerService.getAll(pageable)).thenReturn(pageResponse);
+
+        mockMvc.perform(get("/customers?page=0&size=10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].email").value(email))
+                .andExpect(jsonPath("$.content[0].name").value(name));
+
+        verify(customerService, times(1)).getAll(pageable);
+    }
 
     @Test
     void testGetById() throws Exception {
