@@ -43,7 +43,7 @@ public class EmployerServiceTest {
     void setUp() {
         employer = new Employer(name, address, new HashSet<>());
         employerRequest = new EmployerRequest(1L, name, address);
-        employerResponse = new EmployerResponse(1L, name, address);
+        employerResponse = new EmployerResponse(1L, name, address, new HashSet<>());
     }
 
     @Test

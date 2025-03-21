@@ -55,7 +55,7 @@ public class EmployerControllerTest {
         employerRequest.setAddress(address);
         employerRequest.setName(name);
 
-        employerResponse = new EmployerResponse(1L, name, address);
+        employerResponse = new EmployerResponse(1L, name, address, new HashSet<>());
         customerRequest = new CustomerRequest();
         customerResponse = new CustomerResponse(customerId, "John Doe", customerEmail, 30, "1234567890", new ArrayList<>(), new HashSet<>());
     }
@@ -69,6 +69,16 @@ public class EmployerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value(name))
                 .andExpect(jsonPath("$[0].address").value(address));
+    }
+
+    @Test
+    void testGetByIdSuccess() throws Exception {
+        when(employerService.getById(1L)).thenReturn(employerResponse);
+
+        mockMvc.perform(get("/employers/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.address").value(address));
     }
 
     @Test

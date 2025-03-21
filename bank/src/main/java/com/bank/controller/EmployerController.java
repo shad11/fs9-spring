@@ -27,6 +27,11 @@ public class EmployerController {
         return ResponseEntity.ok(employerService.getAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<EmployerResponse> getById(@PathVariable long id) {
+        return ResponseEntity.ok(employerService.getById(id));
+    }
+
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody @Validated(FullUpdate.class) EmployerRequest employerRequest) {
         if (employerService.getEmployerByName(employerRequest.getName()) != null) {
