@@ -2,6 +2,7 @@ package com.bank.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Table(name = "employers")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Employer extends AbstractEntity {
     @Column(nullable = false)
@@ -24,9 +26,4 @@ public class Employer extends AbstractEntity {
     @ManyToMany(mappedBy = "employers")
     @JsonIgnore
     private Set<Customer> customers = new HashSet<>();
-
-    public Employer(String name, String address) {
-        this.name = name;
-        this.address = address;
-    }
 }

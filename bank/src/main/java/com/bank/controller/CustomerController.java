@@ -3,12 +3,14 @@ package com.bank.controller;
 import com.bank.dto.*;
 import com.bank.service.AccountService;
 import com.bank.service.CustomerService;
+import com.bank.util.ResponseHandler;
 import com.bank.validation.FullUpdate;
 import com.bank.validation.PartialUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +25,10 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<Page<CustomerResponse>> getAll(
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page, size);
 
         return ResponseEntity.ok(customerService.getAll(pageable));
     }
@@ -38,15 +40,24 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody @Validated(FullUpdate.class) CustomerRequest customerRequest) {
-        if (customerRequest.getName() == null || customerRequest.getEmail() == null || customerRequest.getAge() == 0) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Customer name, email and age are mandatory"));
-        }
-
+//        if (customerRequest.getName() == null || customerRequest.getEmail() == null || customerRequest.getAge() == 0) {
+//            return ResponseHandler.generateResponse(
+//                    HttpStatus.BAD_REQUEST,
+//                    true,
+//                    "Customer name, email and age are mandatory",
+//                    null
+//            );
+//        }
         if (customerService.getByEmail(customerRequest.getEmail()) != null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Email already exists"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Email already exists",
+                    null
+            );
         }
 
-        return ResponseEntity.status(201).body(customerService.save(customerRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.save(customerRequest));
     }
 
     @PutMapping("/{id}")
@@ -58,13 +69,23 @@ public class CustomerController {
     public ResponseEntity<Object> delete(@PathVariable long id) {
         customerService.delete(id);
 
-        return ResponseEntity.ok(new MessageResponse("Customer deleted"));
+        return ResponseHandler.generateResponse(
+                HttpStatus.OK,
+                false,
+                "Customer deleted",
+                null
+        );
     }
 
     @PostMapping("/{id}/accounts")
     public ResponseEntity<Object> addAccount(@PathVariable("id") long customerId, @RequestBody AccountRequest accountRequest) {
         if (accountRequest.getCurrency() == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Currency is mandatory"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Currency is mandatory",
+                    null
+            );
         }
 
         return ResponseEntity.ok(accountService.addAccount(customerId, accountRequest));
@@ -74,6 +95,11 @@ public class CustomerController {
     public ResponseEntity<Object> deleteAccount(@PathVariable long id, @PathVariable long accountId) {
         accountService.delete(accountId);
 
-        return ResponseEntity.ok(new MessageResponse("Account deleted"));
+        return ResponseHandler.generateResponse(
+                HttpStatus.OK,
+                false,
+                "Account deleted",
+                null
+        );
     }
 }

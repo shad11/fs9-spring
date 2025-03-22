@@ -1,9 +1,10 @@
 package com.bank.controller;
 
 import com.bank.dto.AccountRequest;
-import com.bank.dto.MessageResponse;
 import com.bank.service.AccountService;
+import com.bank.util.ResponseHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,12 @@ public class AccountController {
     @PatchMapping("/{number}/deposit")
     public ResponseEntity<Object> increaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
         if (amount <= 0) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Amount should be greater than 0"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Amount should be greater than 0",
+                    null
+            );
         }
 
         return ResponseEntity.ok(accountService.deposit(number, amount));
@@ -25,24 +31,39 @@ public class AccountController {
     @PatchMapping("/{number}/withdraw")
     public ResponseEntity<Object> decreaseAccount(@PathVariable String number, @RequestParam("amount") double amount) {
         if (amount <= 0) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Amount should be greater than 0"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Amount should be greater than 0",
+                    null
+            );
         }
 
         return ResponseEntity.ok(accountService.withdraw(number, amount));
     }
 
     @PatchMapping("/{number}/transfer")
-    public ResponseEntity<MessageResponse> transfer(@PathVariable String number, @RequestBody AccountRequest accountRequest) {
+    public ResponseEntity<Object> transfer(@PathVariable String number, @RequestBody AccountRequest accountRequest) {
         double amount = accountRequest.getAmount();
 
         if (amount <= 0) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Amount should be greater than 0"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Amount should be greater than 0",
+                    null
+            );
         }
 
         accountService.withdraw(number, amount);
         accountService.deposit(accountRequest.getNumber(), amount);
 
-        return ResponseEntity.ok(new MessageResponse("Transfer successful"));
+        return ResponseHandler.generateResponse(
+                HttpStatus.OK,
+                false,
+                "Transfer successful",
+                null
+        );
     }
 //
 //    @DeleteMapping("/{id}")

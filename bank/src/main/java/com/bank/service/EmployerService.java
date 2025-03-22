@@ -3,8 +3,8 @@ package com.bank.service;
 import com.bank.dto.EmployerFacade;
 import com.bank.dto.EmployerRequest;
 import com.bank.dto.EmployerResponse;
-import com.bank.exception.CustomerException;
 import com.bank.entity.Employer;
+import com.bank.exception.NotFoundException;
 import com.bank.repository.EmployerRepository;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +34,7 @@ public class EmployerService {
     }
 
     public EmployerResponse getById(long id) {
-        Employer employer = employerRepository.findById(id).orElseThrow(() -> new CustomerException("Employer hasn't been found!"));
+        Employer employer = employerRepository.findById(id).orElseThrow(() -> new NotFoundException("Employer hasn't been found!"));
 
         return employerFacade.toResponse(employer);
     }

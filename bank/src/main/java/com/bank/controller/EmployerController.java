@@ -3,9 +3,11 @@ package com.bank.controller;
 import com.bank.dto.*;
 import com.bank.service.CustomerService;
 import com.bank.service.EmployerService;
+import com.bank.util.ResponseHandler;
+import com.bank.validation.FullUpdate;
 import com.bank.validation.PartialUpdate;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +27,20 @@ public class EmployerController {
         return ResponseEntity.ok(employerService.getAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<EmployerResponse> getById(@PathVariable long id) {
+        return ResponseEntity.ok(employerService.getById(id));
+    }
+
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody @Valid EmployerRequest employerRequest) {
+    public ResponseEntity<Object> create(@RequestBody @Validated(FullUpdate.class) EmployerRequest employerRequest) {
         if (employerService.getEmployerByName(employerRequest.getName()) != null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Employer already exists"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Employer already exists",
+                    null
+            );
         }
 
         return ResponseEntity.status(201).body(employerService.save(employerRequest));
@@ -39,7 +51,12 @@ public class EmployerController {
         EmployerResponse employer = employerService.getById(id);
 
         if (customerRequest.getEmail() == null && customerRequest.getId() == 0) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Customer email or ID is mandatory"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Customer email or ID is mandatory",
+                    null
+            );
         }
 
         CustomerResponse customer = null;
@@ -51,11 +68,21 @@ public class EmployerController {
         }
 
         if (customer == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Customer not found"));
+            return ResponseHandler.generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    true,
+                    "Customer not found",
+                    null
+            );
         }
 
         customerService.addEmployerToCustomer(customer.getId(), employer.getId());
 
-        return ResponseEntity.ok(new MessageResponse("Customer added to employer"));
+        return ResponseHandler.generateResponse(
+                HttpStatus.OK,
+                false,
+                "Customer added to employer",
+                null
+        );
     }
 }

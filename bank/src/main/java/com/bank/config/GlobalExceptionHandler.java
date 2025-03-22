@@ -1,9 +1,11 @@
 package com.bank.config;
 
-import com.bank.dto.MessageResponse;
 import com.bank.exception.CustomerException;
+import com.bank.exception.NotFoundException;
+import com.bank.util.ResponseHandler;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,7 +42,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomerException.class)
-    public ResponseEntity<MessageResponse> handleException(CustomerException e) {
-        return ResponseEntity.status(500).body(new MessageResponse(e.getMessage()));
+    public ResponseEntity<Object> handleException(CustomerException e) {
+        return ResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, e.getMessage(), null);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleException(NotFoundException e) {
+        return ResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
     }
 }
