@@ -7,6 +7,7 @@ import com.bank.util.ResponseHandler;
 import com.bank.validation.FullUpdate;
 import com.bank.validation.PartialUpdate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/customers")
 @RequiredArgsConstructor
@@ -30,25 +32,32 @@ public class CustomerController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
+        log.info("Getting {} customers from page {}", pageable.getPageSize(), page);
+
         return ResponseEntity.ok(customerService.getAll(pageable));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CustomerResponse> getById(@PathVariable long id) {
-        return ResponseEntity.ok(customerService.getById(id));
+        CustomerResponse customer = customerService.getById(id);
+
+        log.info(
+                "Getting customer with ID {} and email {}",
+                id,
+                customer.getEmail()
+        );
+
+        return ResponseEntity.ok(customer);
     }
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody @Validated(FullUpdate.class) CustomerRequest customerRequest) {
-//        if (customerRequest.getName() == null || customerRequest.getEmail() == null || customerRequest.getAge() == 0) {
-//            return ResponseHandler.generateResponse(
-//                    HttpStatus.BAD_REQUEST,
-//                    true,
-//                    "Customer name, email and age are mandatory",
-//                    null
-//            );
-//        }
         if (customerService.getByEmail(customerRequest.getEmail()) != null) {
+            log.info(
+                    "Customer with email: {} can't be created. It already exists.",
+                    customerRequest.getEmail()
+            );
+
             return ResponseHandler.generateResponse(
                     HttpStatus.BAD_REQUEST,
                     true,
@@ -57,17 +66,35 @@ public class CustomerController {
             );
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.save(customerRequest));
+        CustomerResponse customer = customerService.save(customerRequest);
+
+        log.info(
+                "Customer with email {} created successfully. Customer ID is {}",
+                customer.getEmail(),
+                customer.getId()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CustomerResponse> update(@PathVariable long id, @RequestBody @Validated(PartialUpdate.class) CustomerRequest customerRequest) {
-        return ResponseEntity.ok(customerService.update(id, customerRequest));
+        CustomerResponse customerUpdated = customerService.update(id, customerRequest);
+
+        log.info(
+                "Customer with ID {} updated successfully. New customer data: {}",
+                id,
+                customerUpdated.toString()
+        );
+
+        return ResponseEntity.ok(customerUpdated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable long id) {
         customerService.delete(id);
+
+        log.info("Customer with ID {} deleted", id);
 
         return ResponseHandler.generateResponse(
                 HttpStatus.OK,
@@ -80,6 +107,8 @@ public class CustomerController {
     @PostMapping("/{id}/accounts")
     public ResponseEntity<Object> addAccount(@PathVariable("id") long customerId, @RequestBody AccountRequest accountRequest) {
         if (accountRequest.getCurrency() == null) {
+            log.info("When creating an account currency is mandatory");
+
             return ResponseHandler.generateResponse(
                     HttpStatus.BAD_REQUEST,
                     true,
@@ -88,12 +117,22 @@ public class CustomerController {
             );
         }
 
-        return ResponseEntity.ok(accountService.addAccount(customerId, accountRequest));
+        AccountResponse accountResponse = accountService.addAccount(customerId, accountRequest);
+
+        log.info(
+                "Account with number {} created successfully for customer with ID {}",
+                accountResponse.getNumber(),
+                customerId
+        );
+
+        return ResponseEntity.ok(accountResponse);
     }
 
     @DeleteMapping("/{id}/accounts/{accountId}")
     public ResponseEntity<Object> deleteAccount(@PathVariable long id, @PathVariable long accountId) {
         accountService.delete(accountId);
+
+        log.info("Account with ID {} deleted", accountId);
 
         return ResponseHandler.generateResponse(
                 HttpStatus.OK,

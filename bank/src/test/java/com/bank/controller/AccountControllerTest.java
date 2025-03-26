@@ -3,6 +3,7 @@ package com.bank.controller;
 import com.bank.dto.AccountResponse;
 import com.bank.enums.Currency;
 import com.bank.service.AccountService;
+import com.bank.service.WebSocketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,8 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -21,6 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AccountControllerTest {
     @Mock
     private AccountService accountService;
+
+    @Mock
+    private WebSocketService webSocketService;
 
     @InjectMocks
     private AccountController accountController;
@@ -45,18 +50,21 @@ public class AccountControllerTest {
         accountResponse.setBalance(expectedBalance);
 
         when(accountService.deposit(number, amount)).thenReturn(accountResponse);
+        doNothing().when(webSocketService).sendAccountUpdate(number, accountResponse.getBalance());
 
-        mockMvc.perform(patch("/accounts/{number}/deposit", number)
+        mockMvc.perform(post("/accounts/{number}/deposit", number)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").value(expectedBalance));
+
+        verify(webSocketService, times(1)).sendAccountUpdate(number, accountResponse.getBalance());
     }
 
     @Test
     void increaseAccountBadRequest() throws Exception {
         int amount = -50;
 
-        mockMvc.perform(patch("/accounts/{number}/deposit", number)
+        mockMvc.perform(post("/accounts/{number}/deposit", number)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Amount should be greater than 0"));
@@ -72,18 +80,21 @@ public class AccountControllerTest {
         accountResponse.setBalance(expectedBalance);
 
         when(accountService.withdraw(number, amount)).thenReturn(accountResponse);
+        doNothing().when(webSocketService).sendAccountUpdate(number, accountResponse.getBalance());
 
-        mockMvc.perform(patch("/accounts/{number}/withdraw", number)
+        mockMvc.perform(post("/accounts/{number}/withdraw", number)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").value(expectedBalance));
+
+        verify(webSocketService, times(1)).sendAccountUpdate(number, accountResponse.getBalance());
     }
 
     @Test
     void decreaseAccountBadRequest() throws Exception {
         int amount = -50;
 
-        mockMvc.perform(patch("/accounts/{number}/withdraw", number)
+        mockMvc.perform(post("/accounts/{number}/withdraw", number)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Amount should be greater than 0"));
@@ -96,21 +107,27 @@ public class AccountControllerTest {
 
         accountResponse.setBalance(100);
 
+        doNothing().when(webSocketService).sendAccountUpdate(number, accountResponse.getBalance());
+        doNothing().when(webSocketService).sendAccountUpdate(targetAccount.getNumber(), targetAccount.getBalance());
+
         when(accountService.withdraw(number, amount)).thenReturn(accountResponse);
         when(accountService.deposit(targetAccount.getNumber(), amount)).thenReturn(targetAccount);
 
-        mockMvc.perform(patch("/accounts/{number}/transfer", number)
+        mockMvc.perform(post("/accounts/{number}/transfer", number)
                         .contentType("application/json")
                         .content("{\"number\":\"" + targetAccount.getNumber() + "\", \"amount\":" + amount + "}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Transfer successful"));
+
+        verify(webSocketService, times(1)).sendAccountUpdate(number, accountResponse.getBalance());
+        verify(webSocketService, times(1)).sendAccountUpdate(targetAccount.getNumber(), targetAccount.getBalance());
     }
 
     @Test
     void transferBadRequest() throws Exception {
         int amount = -50;
 
-        mockMvc.perform(patch("/accounts/{number}/transfer", number)
+        mockMvc.perform(post("/accounts/{number}/transfer", number)
                         .contentType("application/json")
                         .content("{\"number\":\"987654321\", \"amount\":" + amount + "}"))
                 .andExpect(status().isBadRequest())
